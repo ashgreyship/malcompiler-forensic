@@ -94,6 +94,14 @@ public class Parser {
     TokenType.ALL, TokenType.ANY, TokenType.HASH, TokenType.EXIST, TokenType.NOTEXIST
   };
 
+  // The first set of <asset>
+  private static TokenType[] evidenceFirst = {TokenType.ABSTRACT, TokenType.EVIDENCE};
+
+  // The first set of <trace>
+  private static TokenType[] traceFirst = {
+    TokenType.ALL, TokenType.ANY, TokenType.HASH, TokenType.EXIST, TokenType.NOTEXIST
+  };
+
   private void _next() throws CompilerException {
     tok = lex.next();
   }
@@ -253,12 +261,15 @@ public class Parser {
       throw exception(TokenType.ID, TokenType.LCURLY);
     }
     var assets = _parseAssetList();
+    var evidences = _parseEvidenceList();
+
     if (tok.type == TokenType.RCURLY) {
       _next();
     } else {
       throw exception(assetFirst, TokenType.RCURLY);
     }
-    return new AST.Category(firstToken, name, meta, assets);
+    // return new AST.Category(firstToken, name, meta, assets);
+    return new AST.Category(firstToken, name, meta, assets, evidences);
   }
 
   // <asset> ::=
@@ -285,6 +296,7 @@ public class Parser {
       throw exception(TokenType.ID, TokenType.LCURLY);
     }
     var attackSteps = new ArrayList<AST.AttackStep>();
+    var traces = new ArrayList<AST.Trace>();
     var variables = new ArrayList<AST.Variable>();
     loop:
     while (true) {
@@ -306,7 +318,56 @@ public class Parser {
           throw exception(attackStepFirst, TokenType.LET, TokenType.RCURLY);
       }
     }
-    return new AST.Asset(firstToken, isAbstract, name, parent, meta, attackSteps, variables);
+    return new AST.Asset(
+        firstToken, isAbstract, name, parent, meta, attackSteps, traces, variables);
+  }
+
+  // <evidence> ::=
+  //           ABSTRACT? EVIDENCE ID (EXTENDS ID)? <meta1>* LCURLY (<trace> | <variable>)* RCURLY
+  private AST.Evidence _parseEvidence() throws CompilerException {
+    var firstToken = tok;
+
+    var isAbstract = false;
+    if (tok.type == TokenType.ABSTRACT) {
+      isAbstract = true;
+      _next();
+    }
+    _expect(TokenType.EVIDENCE);
+    var name = _parseID();
+    Optional<AST.ID> parent = Optional.empty();
+    if (tok.type == TokenType.EXTENDS) {
+      _next();
+      parent = Optional.of(_parseID());
+    }
+    var meta = _parseMeta1List();
+    if (tok.type == TokenType.LCURLY) {
+      _next();
+    } else {
+      throw exception(TokenType.ID, TokenType.LCURLY);
+    }
+    var traces = new ArrayList<AST.Trace>();
+    var variables = new ArrayList<AST.Variable>();
+    loop:
+    while (true) {
+      switch (tok.type) {
+        case LET:
+          variables.add(_parseVariable());
+          break;
+        case ALL:
+        case ANY:
+        case HASH:
+        case EXIST:
+        case NOTEXIST:
+          traces.add(_parseTrace());
+          break;
+        case RCURLY:
+          _next();
+          break loop;
+        default:
+          throw exception(evidenceFirst, TokenType.LET, TokenType.RCURLY);
+      }
+    }
+    return new AST.Evidence(firstToken, isAbstract, name, parent, meta, traces, variables);
   }
 
   // <asset>*
@@ -322,6 +383,51 @@ public class Parser {
           return assets;
       }
     }
+  }
+
+  // <evidence>*
+  private List<AST.Evidence> _parseEvidenceList() throws CompilerException {
+    var assets = new ArrayList<AST.Evidence>();
+    while (true) {
+      switch (tok.type) {
+        case ABSTRACT:
+        case ASSET:
+          assets.add(_parseEvidence());
+          break;
+        default:
+          return assets;
+      }
+    }
+  }
+
+  // <trace> ::= <trace_type> ID <tag>* <cia>? <ttc>? <meta1>* <existence>? <reaches>?
+  private AST.Trace _parseTrace() throws CompilerException {
+    var firstToken = tok;
+
+    var trace_Type = _parseTraceType();
+    var name = _parseID();
+    List<AST.ID> tags = new ArrayList<>();
+    while (tok.type == TokenType.AT) {
+      tags.add(_parseTag());
+    }
+    Optional<List<AST.CIA>> cia = Optional.empty();
+    if (tok.type == TokenType.LCURLY) {
+      cia = Optional.of(_parseCIA());
+    }
+    Optional<AST.TTCExpr> ttc = Optional.empty();
+    if (tok.type == TokenType.LBRACKET) {
+      ttc = _parseTTC();
+    }
+    var meta = _parseMeta1List();
+    Optional<AST.Requires> requires = Optional.empty();
+    if (tok.type == TokenType.REQUIRE) {
+      requires = Optional.of(_parseExistence());
+    }
+    Optional<AST.Reaches> reaches = Optional.empty();
+    if (tok.type == TokenType.INHERIT || tok.type == TokenType.OVERRIDE) {
+      reaches = Optional.of(_parseReaches());
+    }
+    return new AST.Trace(firstToken, trace_Type, name, tags, cia, ttc, meta, requires, reaches);
   }
 
   // <attackstep> ::= <astype> ID <tag>* <cia>? <ttc>? <meta1>* <existence>? <reaches>?
@@ -374,6 +480,20 @@ public class Parser {
         return AST.AttackStepType.NOTEXIST;
       default:
         throw exception(attackStepFirst);
+    }
+  }
+
+  // <trace_type> ::= ALL | ANY
+  private AST.TraceType _parseTraceType() throws CompilerException {
+    switch (tok.type) {
+      case ALL:
+        _next();
+        return AST.TraceType.ALL;
+      case ANY:
+        _next();
+        return AST.TraceType.ANY;
+      default:
+        throw exception(traceFirst);
     }
   }
 
@@ -528,18 +648,10 @@ public class Parser {
     return new AST.Requires(firstToken, requires);
   }
 
-  // <reaches> ::= (INHERIT | OVERRIDE) <expr> (COMMA <expr>)*
+  // <reaches> ::= <reach_type> <expr> (COMMA <expr>)*
   private AST.Reaches _parseReaches() throws CompilerException {
     var firstToken = tok;
-
-    var inherits = false;
-    if (tok.type == TokenType.INHERIT) {
-      inherits = true;
-    } else if (tok.type == TokenType.OVERRIDE) {
-      inherits = false;
-    } else {
-      throw exception(TokenType.INHERIT, TokenType.OVERRIDE);
-    }
+    var reachTypes = _parseReachTypes();
     _next();
     var reaches = new ArrayList<AST.Expr>();
     reaches.add(_parseExpr());
@@ -547,7 +659,28 @@ public class Parser {
       _next();
       reaches.add(_parseExpr());
     }
-    return new AST.Reaches(firstToken, inherits, reaches);
+    return new AST.Reaches(firstToken, reachTypes, reaches);
+  }
+
+  // <reach_type> ::= INHERIT | OVERRIDE | LEAVE | ERASE
+  private AST.ReachTypes _parseReachTypes() throws CompilerException {
+
+    switch (tok.type) {
+      case INHERIT:
+        _next();
+        return AST.ReachTypes.INHERIT;
+      case OVERRIDE:
+        _next();
+        return AST.ReachTypes.OVERRIDE;
+      case LEAVE:
+        _next();
+        return AST.ReachTypes.LEAVE;
+      case ERASE:
+        _next();
+        return AST.ReachTypes.ERASE;
+      default:
+        throw exception();
+    }
   }
 
   // <variable> ::= LET ID ASSIGN <expr>

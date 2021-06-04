@@ -151,8 +151,8 @@ public class AST {
     public final List<Asset> assets;
     public final List<Evidence> evidences;
 
-
-    public Category(Position pos, ID name, List<Meta> meta, List<Asset> assets, List<Evidence> evidences) {
+    public Category(
+        Position pos, ID name, List<Meta> meta, List<Asset> assets, List<Evidence> evidences) {
       super(pos);
       this.name = name;
       this.meta = meta;
@@ -197,14 +197,14 @@ public class AST {
     public final List<Variable> variables;
 
     public Asset(
-            Position pos,
-            boolean isAbstract,
-            ID name,
-            Optional<ID> parent,
-            List<Meta> meta,
-            List<AttackStep> attackSteps,
-            List<Trace> traces,
-            List<Variable> variables) {
+        Position pos,
+        boolean isAbstract,
+        ID name,
+        Optional<ID> parent,
+        List<Meta> meta,
+        List<AttackStep> attackSteps,
+        List<Trace> traces,
+        List<Variable> variables) {
       super(pos);
       this.isAbstract = isAbstract;
       this.name = name;
@@ -219,15 +219,15 @@ public class AST {
       var indent = " ".repeat(spaces);
       var sb = new StringBuilder();
       sb.append(
-              String.format(
-                      "%sAsset(%s, %s, %s, %s,%n",
-                      indent,
-                      posString(),
-                      isAbstract ? "ABSTRACT" : "NOT_ABSTRACT",
-                      name.toString(),
-                      parent.isEmpty()
-                              ? "NO_PARENT"
-                              : String.format("PARENT(%s)", parent.get().toString())));
+          String.format(
+              "%sAsset(%s, %s, %s, %s,%n",
+              indent,
+              posString(),
+              isAbstract ? "ABSTRACT" : "NOT_ABSTRACT",
+              name.toString(),
+              parent.isEmpty()
+                  ? "NO_PARENT"
+                  : String.format("PARENT(%s)", parent.get().toString())));
       sb.append(String.format("%s,%n", Meta.listToString(meta, spaces + 2)));
       sb.append(String.format("%s,%n", AttackStep.listToString(attackSteps, spaces + 2)));
       sb.append(String.format("%s%n", Variable.listToString(variables, spaces + 2)));
@@ -251,7 +251,6 @@ public class AST {
     }
   }
 
-
   public static class Evidence extends Position {
     public final boolean isAbstract;
     public final ID name;
@@ -261,13 +260,13 @@ public class AST {
     public final List<Variable> variables;
 
     public Evidence(
-            Position pos,
-            boolean isAbstract,
-            ID name,
-            Optional<ID> parent,
-            List<Meta> meta,
-            List<Trace> traces,
-            List<Variable> variables) {
+        Position pos,
+        boolean isAbstract,
+        ID name,
+        Optional<ID> parent,
+        List<Meta> meta,
+        List<Trace> traces,
+        List<Variable> variables) {
       super(pos);
       this.isAbstract = isAbstract;
       this.name = name;
@@ -281,15 +280,15 @@ public class AST {
       var indent = " ".repeat(spaces);
       var sb = new StringBuilder();
       sb.append(
-              String.format(
-                      "%sAsset(%s, %s, %s, %s,%n",
-                      indent,
-                      posString(),
-                      isAbstract ? "ABSTRACT" : "NOT_ABSTRACT",
-                      name.toString(),
-                      parent.isEmpty()
-                              ? "NO_PARENT"
-                              : String.format("PARENT(%s)", parent.get().toString())));
+          String.format(
+              "%sAsset(%s, %s, %s, %s,%n",
+              indent,
+              posString(),
+              isAbstract ? "ABSTRACT" : "NOT_ABSTRACT",
+              name.toString(),
+              parent.isEmpty()
+                  ? "NO_PARENT"
+                  : String.format("PARENT(%s)", parent.get().toString())));
       sb.append(String.format("%s,%n", Meta.listToString(meta, spaces + 2)));
       sb.append(String.format("%s,%n", Trace.listToString(traces, spaces + 2)));
       sb.append(String.format("%s%n", Variable.listToString(variables, spaces + 2)));
@@ -313,10 +312,11 @@ public class AST {
     }
   }
 
-  public enum TraceType{
+  public enum TraceType {
     ALL,
     ANY
   }
+
   public static class Trace extends Position {
     public final TraceType type;
     public final ID name;
@@ -328,15 +328,15 @@ public class AST {
     public final Optional<Reaches> reaches;
 
     public Trace(
-            Position pos,
-            TraceType type,
-            ID name,
-            List<ID> tags,
-            Optional<List<CIA>> cia,
-            Optional<TTCExpr> ttc,
-            List<Meta> meta,
-            Optional<Requires> requires,
-            Optional<Reaches> reaches) {
+        Position pos,
+        TraceType type,
+        ID name,
+        List<ID> tags,
+        Optional<List<CIA>> cia,
+        Optional<TTCExpr> ttc,
+        List<Meta> meta,
+        Optional<Requires> requires,
+        Optional<Reaches> reaches) {
       super(pos);
       this.type = type;
       this.name = name;
@@ -352,8 +352,7 @@ public class AST {
       var indent = " ".repeat(spaces);
       var sb = new StringBuilder();
       sb.append(
-              String.format(
-                      "%Trace(%s, %s, %s,%n", indent, posString(), type.name(), name.toString()));
+          String.format("%Trace(%s, %s, %s,%n", indent, posString(), type.name(), name.toString()));
       sb.append(String.format("%s  tags = {", indent));
       for (int i = 0; i < tags.size(); i++) {
         if (i > 0) {
@@ -403,7 +402,6 @@ public class AST {
     }
   }
 
-
   public enum AttackStepType {
     ALL,
     ANY,
@@ -423,15 +421,15 @@ public class AST {
     public final Optional<Reaches> reaches;
 
     public AttackStep(
-            Position pos,
-            AttackStepType type,
-            ID name,
-            List<ID> tags,
-            Optional<List<CIA>> cia,
-            Optional<TTCExpr> ttc,
-            List<Meta> meta,
-            Optional<Requires> requires,
-            Optional<Reaches> reaches) {
+        Position pos,
+        AttackStepType type,
+        ID name,
+        List<ID> tags,
+        Optional<List<CIA>> cia,
+        Optional<TTCExpr> ttc,
+        List<Meta> meta,
+        Optional<Requires> requires,
+        Optional<Reaches> reaches) {
       super(pos);
       this.type = type;
       this.name = name;
@@ -447,8 +445,8 @@ public class AST {
       var indent = " ".repeat(spaces);
       var sb = new StringBuilder();
       sb.append(
-              String.format(
-                      "%sAttackStep(%s, %s, %s,%n", indent, posString(), type.name(), name.toString()));
+          String.format(
+              "%sAttackStep(%s, %s, %s,%n", indent, posString(), type.name(), name.toString()));
       sb.append(String.format("%s  tags = {", indent));
       for (int i = 0; i < tags.size(); i++) {
         if (i > 0) {
@@ -650,10 +648,10 @@ public class AST {
 
   public static class Reaches extends Position {
     // public final boolean inherits;
-    public final ReachTypes  types;
+    public final ReachTypes types;
     public final List<Expr> reaches;
 
-    public Reaches(Position pos,ReachTypes types, List<Expr> reaches) {
+    public Reaches(Position pos, ReachTypes types, List<Expr> reaches) {
       super(pos);
       this.types = types;
       // this.inherits = inherits;
@@ -663,12 +661,12 @@ public class AST {
     public String toString(int spaces) {
       var indent = " ".repeat(spaces);
       var sb = new StringBuilder();
-//            sb.append(
-//                    String.format(
-//                            "%sReaches(%s, %s,%n", indent, posString(), inherits ? "INHERITS" : "OVERRIDES"));
+      //            sb.append(
+      //                    String.format(
+      //                            "%sReaches(%s, %s,%n", indent, posString(), inherits ?
+      // "INHERITS" : "OVERRIDES"));
 
-      sb.append(
-              String.format("%sReaches(%s, %s,%n", indent, posString(), types));
+      sb.append(String.format("%sReaches(%s, %s,%n", indent, posString(), types));
       sb.append(String.format("%s%n", Expr.listToString(reaches, "reaches", spaces + 2)));
       sb.append(String.format("%s)", indent));
       return sb.toString();
@@ -757,7 +755,7 @@ public class AST {
     @Override
     public String toString() {
       return String.format(
-              "DifferenceExpr(%s, %s, %s)", posString(), lhs.toString(), rhs.toString());
+          "DifferenceExpr(%s, %s, %s)", posString(), lhs.toString(), rhs.toString());
     }
   }
 
@@ -769,7 +767,7 @@ public class AST {
     @Override
     public String toString() {
       return String.format(
-              "IntersectionExpr(%s, %s, %s)", posString(), lhs.toString(), rhs.toString());
+          "IntersectionExpr(%s, %s, %s)", posString(), lhs.toString(), rhs.toString());
     }
   }
 
@@ -815,7 +813,7 @@ public class AST {
     @Override
     public String toString() {
       return String.format(
-              "SubTypeExpr(%s, %s, %s)", posString(), e.toString(), subType.toString());
+          "SubTypeExpr(%s, %s, %s)", posString(), e.toString(), subType.toString());
     }
   }
 
@@ -858,15 +856,15 @@ public class AST {
     public final List<Meta> meta;
 
     public Association(
-            Position pos,
-            ID leftAsset,
-            ID leftField,
-            Multiplicity leftMult,
-            ID linkName,
-            Multiplicity rightMult,
-            ID rightField,
-            ID rightAsset,
-            List<Meta> meta) {
+        Position pos,
+        ID leftAsset,
+        ID leftField,
+        Multiplicity leftMult,
+        ID linkName,
+        Multiplicity rightMult,
+        ID rightField,
+        ID rightAsset,
+        List<Meta> meta) {
       super(pos);
       this.leftAsset = leftAsset;
       this.leftField = leftField;
@@ -882,17 +880,17 @@ public class AST {
       var indent = " ".repeat(spaces);
       var sb = new StringBuilder();
       sb.append(
-              String.format(
-                      "%sAssociation(%s, %s, %s, %s, %s, %s, %s, %s,%n",
-                      indent,
-                      posString(),
-                      leftAsset.toString(),
-                      leftField.toString(),
-                      leftMult.name(),
-                      linkName.toString(),
-                      rightMult.name(),
-                      rightField.toString(),
-                      rightAsset.toString()));
+          String.format(
+              "%sAssociation(%s, %s, %s, %s, %s, %s, %s, %s,%n",
+              indent,
+              posString(),
+              leftAsset.toString(),
+              leftField.toString(),
+              leftMult.name(),
+              linkName.toString(),
+              rightMult.name(),
+              rightField.toString(),
+              rightAsset.toString()));
       sb.append(String.format("%s%n", Meta.listToString(meta, spaces + 2)));
       sb.append(String.format("%s)", indent));
       return sb.toString();
@@ -900,8 +898,8 @@ public class AST {
 
     public String toShortString() {
       return String.format(
-              "%s [%s] <-- %s --> %s [%s]",
-              leftAsset.id, leftField.id, linkName.id, rightAsset.id, rightField.id);
+          "%s [%s] <-- %s --> %s [%s]",
+          leftAsset.id, leftField.id, linkName.id, rightAsset.id, rightField.id);
     }
 
     public static String listToString(List<Association> associations, int spaces) {
