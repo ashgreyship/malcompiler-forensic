@@ -64,7 +64,12 @@ public enum TokenType {
   DIVIDE("'/'"),
   POWER("'^'"),
   LARROW("'<--'"),
-  RARROW("'-->'");
+  RARROW("'-->'"),
+
+  LEAVE("!>"),
+  ERASE("#>"),
+  TRACE("'trace'"),
+  EVIDENCE("'evidence");
 
   private final String string;
 
