@@ -66,10 +66,10 @@ public enum TokenType {
   LARROW("'<--'"),
   RARROW("'-->'"),
 
-  LEAVE("!>"),
-  ERASE("#>"),
+  LEAVE("'!>'"),
+  ERASE("'#>'"),
   TRACE("'trace'"),
-  EVIDENCE("'evidence");
+  EVIDENCE("'evidence'");
 
   private final String string;
 
