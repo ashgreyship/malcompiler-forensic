@@ -400,7 +400,7 @@ public class Generator extends JavaGenerator {
     ClassName as = ClassName.get("core", "AttackStep");
     TypeName asSet = ParameterizedTypeName.get(set, as);
     builder.addParameter(asSet, "attackSteps");
-    if (attackStep.inheritsReaches()) {
+    if (attackStep.inheritsReaches() != null) {
       builder.addStatement("super.updateChildren(attackSteps)");
     }
 

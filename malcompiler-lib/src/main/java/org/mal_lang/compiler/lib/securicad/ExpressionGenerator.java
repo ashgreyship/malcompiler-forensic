@@ -47,7 +47,7 @@ public class ExpressionGenerator extends JavaGenerator {
     builder.returns(asSet);
 
     builder.beginControlFlow("if ($N == null)", cacheName);
-    if (attackStep.inheritsReaches()) {
+    if (attackStep.inheritsReaches() != null) {
       builder.addStatement("$T tmpCache = new $T<>(super.getAttackStepChildren())", asSet, hashSet);
     } else {
       builder.addStatement("$T tmpCache = new $T<>()", asSet, hashSet);

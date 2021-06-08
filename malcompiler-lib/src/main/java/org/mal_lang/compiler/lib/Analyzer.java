@@ -479,7 +479,8 @@ public class Analyzer {
           prevDef = scope.lookup(attackStep.name.id);
           if (prevDef == null) {
             // Attack step is not defined in any scope
-            if (attackStep.reaches.isEmpty() || !attackStep.reaches.get().inherits) {
+            if (attackStep.reaches.isEmpty()
+                || attackStep.reaches.get().types != AST.ReachTypes.INHERIT) {
               // Attack step either doesn't reach anything or reaches with ->, OK
               scope.add(attackStep.name.id, attackStep);
             } else {

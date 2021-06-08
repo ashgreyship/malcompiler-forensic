@@ -328,7 +328,7 @@ public class Lang {
     private String name;
     private AttackStepType type;
     private Asset asset;
-    private boolean inheritsReaches;
+    private AST.ReachTypes inheritsReaches;
     private List<String> tags;
     private CIA cia;
     private Map<String, String> meta;
@@ -338,7 +338,7 @@ public class Lang {
     private List<StepExpr> parentSteps;
 
     public AttackStep(
-        String name, AttackStepType type, Asset asset, boolean inheritsReaches, CIA cia) {
+        String name, AttackStepType type, Asset asset, AST.ReachTypes inheritsReaches, CIA cia) {
       this.name = name;
       this.type = type;
       this.asset = asset;
@@ -363,7 +363,7 @@ public class Lang {
       return this.asset;
     }
 
-    public boolean inheritsReaches() {
+    public AST.ReachTypes inheritsReaches() {
       return this.inheritsReaches;
     }
 

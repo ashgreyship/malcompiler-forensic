@@ -40,9 +40,7 @@ public class LangConverter {
       this.astCategories.get(astCategory.name.id).add(astCategory);
     }
     // Collect associations
-    for (var astAssociation : ast.getAssociations()) {
-      this.astAssociations.add(astAssociation);
-    }
+    this.astAssociations.addAll(ast.getAssociations());
     // Collect defines
     for (var astDefine : ast.getDefines()) {
       this.astDefines.put(astDefine.key.id, astDefine.value);
@@ -150,9 +148,7 @@ public class LangConverter {
             for (var tag : astAttackStep.tags) {
               langAttackStep.addTag(tag.id);
             }
-            if (astAttackStep.ttc.isPresent()) {
-              langAttackStep.setTTC(_convertTTC(astAttackStep.ttc.get()));
-            }
+            astAttackStep.ttc.ifPresent(ttcExpr -> langAttackStep.setTTC(_convertTTC(ttcExpr)));
             langAsset.addAttackStep(langAttackStep);
           }
         }
@@ -248,12 +244,8 @@ public class LangConverter {
     throw new RuntimeException("Invalid AttackStepType");
   }
 
-  private boolean _convertInheritsReaches(AST.AttackStep astAttackStep) {
-    if (astAttackStep.reaches.isPresent()) {
-      return astAttackStep.reaches.get().inherits;
-    } else {
-      return false;
-    }
+  private AST.ReachTypes _convertInheritsReaches(AST.AttackStep astAttackStep) {
+    return astAttackStep.reaches.map(reaches -> reaches.types).orElse(null);
   }
 
   private Lang.CIA _convertCIA(Optional<List<AST.CIA>> astCIA) {

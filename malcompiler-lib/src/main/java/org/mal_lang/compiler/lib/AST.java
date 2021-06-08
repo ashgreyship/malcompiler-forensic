@@ -152,7 +152,7 @@ public class AST {
     public final List<Evidence> evidences;
 
     public Category(
-        Position pos, ID name, List<Meta> meta, List<Asset> assets, List<Evidence> evidences) {
+        Position pos, ID name, List<Meta> meta, List<Asset> assets, List<Evidence>  evidences) {
       super(pos);
       this.name = name;
       this.meta = meta;
@@ -162,13 +162,11 @@ public class AST {
 
     public String toString(int spaces) {
       var indent = " ".repeat(spaces);
-      var sb = new StringBuilder();
-      sb.append(String.format("%sCategory(%s, %s,%n", indent, posString(), name.toString()));
-      sb.append(String.format("%s,%n", Meta.listToString(meta, spaces + 2)));
-      sb.append(String.format("%s%n", Asset.listToString(assets, spaces + 2)));
-      sb.append(String.format("%s%n", Evidence.listToString(evidences, spaces + 2)));
-      sb.append(String.format("%s)", indent));
-      return sb.toString();
+      return String.format("%sCategory(%s, %s,%n", indent, posString(), name.toString()) +
+              String.format("%s,%n", Meta.listToString(meta, spaces + 2)) +
+              String.format("%s%n", Asset.listToString(assets, spaces + 2)) +
+              String.format("%s%n", Evidence.listToString(evidences, spaces + 2)) +
+              String.format("%s)", indent);
     }
 
     public static String listToString(List<Category> categories, int spaces) {
@@ -278,22 +276,19 @@ public class AST {
 
     public String toString(int spaces) {
       var indent = " ".repeat(spaces);
-      var sb = new StringBuilder();
-      sb.append(
-          String.format(
+      return String.format(
               "%sAsset(%s, %s, %s, %s,%n",
               indent,
               posString(),
               isAbstract ? "ABSTRACT" : "NOT_ABSTRACT",
               name.toString(),
               parent.isEmpty()
-                  ? "NO_PARENT"
-                  : String.format("PARENT(%s)", parent.get().toString())));
-      sb.append(String.format("%s,%n", Meta.listToString(meta, spaces + 2)));
-      sb.append(String.format("%s,%n", Trace.listToString(traces, spaces + 2)));
-      sb.append(String.format("%s%n", Variable.listToString(variables, spaces + 2)));
-      sb.append(String.format("%s)", indent));
-      return sb.toString();
+                      ? "NO_PARENT"
+                      : String.format("PARENT(%s)", parent.get().toString())) +
+              String.format("%s,%n", Meta.listToString(meta, spaces + 2)) +
+              String.format("%s,%n", Trace.listToString(traces, spaces + 2)) +
+              String.format("%s%n", Variable.listToString(variables, spaces + 2)) +
+              String.format("%s)", indent);
     }
 
     public static String listToString(List<Evidence> evidences, int spaces) {
