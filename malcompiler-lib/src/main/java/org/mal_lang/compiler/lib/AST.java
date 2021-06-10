@@ -633,7 +633,7 @@ public class AST {
 
     @Override
     public String toString() {
-      return String.format("TTCAddExpr(%s, %s, %s)", posString(), lhs.toString(), rhs.toString());
+      return String.format("TTEAddExpr(%s, %s, %s)", posString(), lhs.toString(), rhs.toString());
     }
   }
 
@@ -644,7 +644,7 @@ public class AST {
 
     @Override
     public String toString() {
-      return String.format("TTCSubExpr(%s, %s, %s)", posString(), lhs.toString(), rhs.toString());
+      return String.format("TTESubExpr(%s, %s, %s)", posString(), lhs.toString(), rhs.toString());
     }
   }
 
@@ -666,7 +666,7 @@ public class AST {
 
     @Override
     public String toString() {
-      return String.format("TTCDivExpr(%s, %s, %s)", posString(), lhs.toString(), rhs.toString());
+      return String.format("TTEDivExpr(%s, %s, %s)", posString(), lhs.toString(), rhs.toString());
     }
   }
 
@@ -677,7 +677,7 @@ public class AST {
 
     @Override
     public String toString() {
-      return String.format("TTCPowExpr(%s, %s, %s)", posString(), lhs.toString(), rhs.toString());
+      return String.format("TTEPowExpr(%s, %s, %s)", posString(), lhs.toString(), rhs.toString());
     }
   }
 
@@ -694,7 +694,7 @@ public class AST {
     @Override
     public String toString() {
       var sb = new StringBuilder();
-      sb.append(String.format("TTCFuncExpr(%s, %s", posString(), name.toString()));
+      sb.append(String.format("TTEFuncExpr(%s, %s", posString(), name.toString()));
       for (var p : params) {
         sb.append(String.format(", %f", p));
       }
@@ -713,7 +713,7 @@ public class AST {
 
     @Override
     public String toString() {
-      return String.format("TTCNumExpr(%s, %f)", posString(), value);
+      return String.format("TTENumExpr(%s, %f)", posString(), value);
     }
   }
 
