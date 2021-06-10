@@ -248,7 +248,7 @@ public class Parser {
     }
   }
 
-  // <category> ::= CATEGORY ID <meta1>* LCURLY <asset>* RCURLY
+  // <category> ::= CATEGORY ID <meta1>* LCURLY <asset>*  < evidence>? RCURLY
   private AST.Category _parseCategory() throws CompilerException {
     var firstToken = tok;
 
