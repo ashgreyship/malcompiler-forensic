@@ -289,23 +289,23 @@ public final class AssertLang {
 
   private static void assertTTCExpr(Lang.TTCExpr expected, Lang.TTCExpr actual) {
     assertSameClass(expected, actual);
-    if (expected instanceof Lang.TTCAdd) {
-      assertTTCExpr(((Lang.TTCAdd) expected).lhs, ((Lang.TTCAdd) actual).lhs);
-      assertTTCExpr(((Lang.TTCAdd) expected).rhs, ((Lang.TTCAdd) actual).rhs);
-    } else if (expected instanceof Lang.TTCSub) {
-      assertTTCExpr(((Lang.TTCSub) expected).lhs, ((Lang.TTCSub) actual).lhs);
-      assertTTCExpr(((Lang.TTCSub) expected).rhs, ((Lang.TTCSub) actual).rhs);
-    } else if (expected instanceof Lang.TTCMul) {
-      assertTTCExpr(((Lang.TTCMul) expected).lhs, ((Lang.TTCMul) actual).lhs);
-      assertTTCExpr(((Lang.TTCMul) expected).rhs, ((Lang.TTCMul) actual).rhs);
-    } else if (expected instanceof Lang.TTCDiv) {
-      assertTTCExpr(((Lang.TTCDiv) expected).lhs, ((Lang.TTCDiv) actual).lhs);
-      assertTTCExpr(((Lang.TTCDiv) expected).rhs, ((Lang.TTCDiv) actual).rhs);
-    } else if (expected instanceof Lang.TTCPow) {
-      assertTTCExpr(((Lang.TTCPow) expected).lhs, ((Lang.TTCPow) actual).lhs);
-      assertTTCExpr(((Lang.TTCPow) expected).rhs, ((Lang.TTCPow) actual).rhs);
-    } else if (expected instanceof Lang.TTCFunc) {
-      assertDistribution(((Lang.TTCFunc) expected).dist, ((Lang.TTCFunc) actual).dist);
+    if (expected instanceof Lang.TTEAdd) {
+      assertTTCExpr(((Lang.TTEAdd) expected).lhs, ((Lang.TTEAdd) actual).lhs);
+      assertTTCExpr(((Lang.TTEAdd) expected).rhs, ((Lang.TTEAdd) actual).rhs);
+    } else if (expected instanceof Lang.TTESub) {
+      assertTTCExpr(((Lang.TTESub) expected).lhs, ((Lang.TTESub) actual).lhs);
+      assertTTCExpr(((Lang.TTESub) expected).rhs, ((Lang.TTESub) actual).rhs);
+    } else if (expected instanceof Lang.TTEMul) {
+      assertTTCExpr(((Lang.TTEMul) expected).lhs, ((Lang.TTEMul) actual).lhs);
+      assertTTCExpr(((Lang.TTEMul) expected).rhs, ((Lang.TTEMul) actual).rhs);
+    } else if (expected instanceof Lang.TTEDiv) {
+      assertTTCExpr(((Lang.TTEDiv) expected).lhs, ((Lang.TTEDiv) actual).lhs);
+      assertTTCExpr(((Lang.TTEDiv) expected).rhs, ((Lang.TTEDiv) actual).rhs);
+    } else if (expected instanceof Lang.TTEPow) {
+      assertTTCExpr(((Lang.TTEPow) expected).lhs, ((Lang.TTEPow) actual).lhs);
+      assertTTCExpr(((Lang.TTEPow) expected).rhs, ((Lang.TTEPow) actual).rhs);
+    } else if (expected instanceof Lang.TTEFunc) {
+      assertDistribution(((Lang.TTEFunc) expected).dist, ((Lang.TTEFunc) actual).dist);
     }
   }
 

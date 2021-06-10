@@ -30,15 +30,15 @@ import org.mal_lang.compiler.lib.Distributions;
 import org.mal_lang.compiler.lib.JavaGenerator;
 import org.mal_lang.compiler.lib.Lang.Asset;
 import org.mal_lang.compiler.lib.Lang.AttackStep;
-import org.mal_lang.compiler.lib.Lang.TTCAdd;
+import org.mal_lang.compiler.lib.Lang.TTEAdd;
 import org.mal_lang.compiler.lib.Lang.TTCBinOp;
-import org.mal_lang.compiler.lib.Lang.TTCDiv;
+import org.mal_lang.compiler.lib.Lang.TTEDiv;
 import org.mal_lang.compiler.lib.Lang.TTCExpr;
-import org.mal_lang.compiler.lib.Lang.TTCFunc;
-import org.mal_lang.compiler.lib.Lang.TTCMul;
-import org.mal_lang.compiler.lib.Lang.TTCNum;
-import org.mal_lang.compiler.lib.Lang.TTCPow;
-import org.mal_lang.compiler.lib.Lang.TTCSub;
+import org.mal_lang.compiler.lib.Lang.TTEFunc;
+import org.mal_lang.compiler.lib.Lang.TTEMul;
+import org.mal_lang.compiler.lib.Lang.TTENum;
+import org.mal_lang.compiler.lib.Lang.TTEPow;
+import org.mal_lang.compiler.lib.Lang.TTESub;
 import org.mal_lang.compiler.lib.MalLogger;
 
 public class AttackStepGenerator extends JavaGenerator {
@@ -137,13 +137,13 @@ public class AttackStepGenerator extends JavaGenerator {
   }
 
   private String getOperator(TTCBinOp expr) {
-    if (expr instanceof TTCAdd) {
+    if (expr instanceof TTEAdd) {
       return "+";
-    } else if (expr instanceof TTCSub) {
+    } else if (expr instanceof TTESub) {
       return "-";
-    } else if (expr instanceof TTCDiv) {
+    } else if (expr instanceof TTEDiv) {
       return "/";
-    } else if (expr instanceof TTCMul) {
+    } else if (expr instanceof TTEMul) {
       return "*";
     } else {
       throw new RuntimeException(
@@ -257,10 +257,10 @@ public class AttackStepGenerator extends JavaGenerator {
   }
 
   private CodeBlock createTTC(TTCExpr expr, CodeBlock otherExpr) {
-    if (expr instanceof TTCPow) {
+    if (expr instanceof TTEPow) {
       ClassName math = ClassName.get("java.lang", "Math");
-      CodeBlock left = createTTC(((TTCPow) expr).lhs);
-      CodeBlock right = createTTC(((TTCPow) expr).rhs);
+      CodeBlock left = createTTC(((TTEPow) expr).lhs);
+      CodeBlock right = createTTC(((TTEPow) expr).rhs);
       return CodeBlock.builder()
           .add("$T.pow(", math)
           .add(left)
@@ -269,13 +269,13 @@ public class AttackStepGenerator extends JavaGenerator {
           .add(")")
           .build();
     } else if (expr instanceof TTCBinOp) {
-      if (expr instanceof TTCMul) {
+      if (expr instanceof TTEMul) {
         TTCExpr lhs = ((TTCBinOp) expr).lhs;
         TTCExpr rhs = ((TTCBinOp) expr).rhs;
-        if (lhs instanceof TTCFunc && ((TTCFunc) lhs).dist instanceof Distributions.Bernoulli) {
+        if (lhs instanceof TTEFunc && ((TTEFunc) lhs).dist instanceof Distributions.Bernoulli) {
           return createTTC(lhs, createTTC(rhs));
-        } else if (rhs instanceof TTCFunc
-            && ((TTCFunc) rhs).dist instanceof Distributions.Bernoulli) {
+        } else if (rhs instanceof TTEFunc
+            && ((TTEFunc) rhs).dist instanceof Distributions.Bernoulli) {
           return createTTC(rhs, createTTC(lhs));
         }
       }
@@ -286,10 +286,10 @@ public class AttackStepGenerator extends JavaGenerator {
           .add(String.format(" %s ", getOperator((TTCBinOp) expr)))
           .add(right)
           .build();
-    } else if (expr instanceof TTCFunc) {
-      return createTTCFunc(((TTCFunc) expr).dist, otherExpr);
-    } else if (expr instanceof TTCNum) {
-      return CodeBlock.builder().add("$L", ((TTCNum) expr).value).build();
+    } else if (expr instanceof TTEFunc) {
+      return createTTCFunc(((TTEFunc) expr).dist, otherExpr);
+    } else if (expr instanceof TTENum) {
+      return CodeBlock.builder().add("$L", ((TTENum) expr).value).build();
     } else {
       throw new RuntimeException("err");
     }

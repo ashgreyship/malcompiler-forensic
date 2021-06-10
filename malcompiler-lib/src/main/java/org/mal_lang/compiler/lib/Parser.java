@@ -410,13 +410,9 @@ public class Parser {
     while (tok.type == TokenType.AT) {
       tags.add(_parseTag());
     }
-    Optional<List<AST.CIA>> cia = Optional.empty();
-    if (tok.type == TokenType.LCURLY) {
-      cia = Optional.of(_parseCIA());
-    }
-    Optional<AST.TTCExpr> ttc = Optional.empty();
+    Optional<AST.TTEExpr> tte = Optional.empty();
     if (tok.type == TokenType.LBRACKET) {
-      ttc = _parseTTC();
+      tte = _parseTTE();
     }
     var meta = _parseMeta1List();
     Optional<AST.Requires> requires = Optional.empty();
@@ -427,7 +423,7 @@ public class Parser {
     if (tok.type == TokenType.INHERIT || tok.type == TokenType.OVERRIDE) {
       reaches = Optional.of(_parseReaches());
     }
-    return new AST.Trace(firstToken, trace_Type, name, tags, cia, ttc, meta, requires, reaches);
+    return new AST.Trace(firstToken, trace_Type, name, tags, tte, meta, requires, reaches);
   }
 
   // <attackstep> ::= <astype> ID <tag>* <cia>? <ttc>? <meta1>* <existence>? <reaches>?
@@ -629,6 +625,100 @@ public class Parser {
     } else if (tok.type == TokenType.INT || tok.type == TokenType.FLOAT) {
       double num = _parseNumber();
       return new AST.TTCNumExpr(firstToken, num);
+    } else {
+      throw exception(TokenType.ID, TokenType.LPAREN, TokenType.INT, TokenType.FLOAT);
+    }
+  }
+
+  // <tte> ::= LBRACKET <tte-expr>? RBRACKET
+  private Optional<AST.TTEExpr> _parseTTE() throws CompilerException {
+    _expect(TokenType.LBRACKET);
+    Optional<AST.TTEExpr> expr = Optional.empty();
+    if (tok.type != TokenType.RBRACKET) {
+      expr = Optional.of(_parseTTEExpr());
+    } else {
+      // empty brackets [] = 0
+      expr = Optional.of(new AST.TTEFuncExpr(tok, new AST.ID(tok, "Zero"), new ArrayList<>()));
+    }
+    _expect(TokenType.RBRACKET);
+    return expr;
+  }
+
+  // <tte-expr> ::= <tte-term> ((PLUS | MINUS) <tte-term>)*
+  private AST.TTEExpr _parseTTEExpr() throws CompilerException {
+    var firstToken = tok;
+
+    var lhs = _parseTTETerm();
+    while (tok.type == TokenType.PLUS || tok.type == TokenType.MINUS) {
+      var addType = tok.type;
+      _next();
+      var rhs = _parseTTETerm();
+      if (addType == TokenType.PLUS) {
+        lhs = new AST.TTEAddExpr(firstToken, lhs, rhs);
+      } else {
+        lhs = new AST.TTESubExpr(firstToken, lhs, rhs);
+      }
+    }
+    return lhs;
+  }
+
+  // <tte-term> ::= <tte-fact> ((STAR | DIVIDE) <tte-fact>)*
+  private AST.TTEExpr _parseTTETerm() throws CompilerException {
+    var firstToken = tok;
+
+    var lhs = _parseTTEFact();
+    while (tok.type == TokenType.STAR || tok.type == TokenType.DIVIDE) {
+      var mulType = tok.type;
+      _next();
+      var rhs = _parseTTEFact();
+      if (mulType == TokenType.STAR) {
+        lhs = new AST.TTEMulExpr(firstToken, lhs, rhs);
+      } else {
+        lhs = new AST.TTEDivExpr(firstToken, lhs, rhs);
+      }
+    }
+    return lhs;
+  }
+
+  // <tte-fact> ::= <tte-prim> (POWER <tte-fact>)?
+  private AST.TTEExpr _parseTTEFact() throws CompilerException {
+    var firstToken = tok;
+
+    var e = _parseTTEPrim();
+    if (tok.type == TokenType.POWER) {
+      _next();
+      e = new AST.TTEPowExpr(firstToken, e, _parseTTEFact());
+    }
+    return e;
+  }
+
+  // <tte-prim> ::= ID (LPAREN (<number> (COMMA <number>)*)? RPAREN)?
+  //              | LPAREN <tte-expr> RPAREN | <number>
+  private AST.TTEExpr _parseTTEPrim() throws CompilerException {
+    var firstToken = tok;
+    if (tok.type == TokenType.ID) {
+      var function = _parseID();
+      var params = new ArrayList<Double>();
+      if (tok.type == TokenType.LPAREN) {
+        _next();
+        if (tok.type == TokenType.INT || tok.type == TokenType.FLOAT) {
+          params.add(_parseNumber());
+          while (tok.type == TokenType.COMMA) {
+            _next();
+            params.add(_parseNumber());
+          }
+        }
+        _expect(TokenType.RPAREN);
+      }
+      return new AST.TTEFuncExpr(firstToken, function, params);
+    } else if (tok.type == TokenType.LPAREN) {
+      _next();
+      var e = _parseTTEExpr();
+      _expect(TokenType.RPAREN);
+      return e;
+    } else if (tok.type == TokenType.INT || tok.type == TokenType.FLOAT) {
+      double num = _parseNumber();
+      return new AST.TTENumExpr(firstToken, num);
     } else {
       throw exception(TokenType.ID, TokenType.LPAREN, TokenType.INT, TokenType.FLOAT);
     }

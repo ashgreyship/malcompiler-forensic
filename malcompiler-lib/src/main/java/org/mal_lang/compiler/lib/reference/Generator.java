@@ -45,7 +45,7 @@ import org.mal_lang.compiler.lib.Lang.AttackStepType;
 import org.mal_lang.compiler.lib.Lang.Field;
 import org.mal_lang.compiler.lib.Lang.StepExpr;
 import org.mal_lang.compiler.lib.Lang.TTCExpr;
-import org.mal_lang.compiler.lib.Lang.TTCFunc;
+import org.mal_lang.compiler.lib.Lang.TTEFunc;
 
 public class Generator extends JavaGenerator {
   private final File output;
@@ -136,8 +136,8 @@ public class Generator extends JavaGenerator {
           String dist = "Zero";
           if (attackStep.hasTTC()) {
             TTCExpr expr = attackStep.getTTC();
-            if (expr instanceof TTCFunc) {
-              dist = ((TTCFunc) expr).dist.toString();
+            if (expr instanceof TTEFunc) {
+              dist = ((TTEFunc) expr).dist.toString();
             } else {
               fw.close();
               throw error(
@@ -302,7 +302,7 @@ public class Generator extends JavaGenerator {
           if (!attackStep.hasTTC()) {
             constructor.addStatement("$N = new $T(name, false)", attackStep.getName(), type);
           } else {
-            TTCFunc func = (TTCFunc) attackStep.getTTC();
+            TTEFunc func = (TTEFunc) attackStep.getTTC();
             if (func.dist.getMean() < 0.5) {
               constructor.addStatement("$N = new $T(name, false)", attackStep.getName(), type);
             } else {
@@ -506,7 +506,7 @@ public class Generator extends JavaGenerator {
     if (!attackStep.hasTTC()) {
       constructor.addStatement("this(name, false)");
     } else {
-      TTCFunc func = (TTCFunc) attackStep.getTTC();
+      TTEFunc func = (TTEFunc) attackStep.getTTC();
       if (func.dist.getMean() < 0.5) {
         constructor.addStatement("this(name, false)");
       } else {

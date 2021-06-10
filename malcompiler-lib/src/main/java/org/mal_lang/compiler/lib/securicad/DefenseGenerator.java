@@ -25,7 +25,7 @@ import org.mal_lang.compiler.lib.Lang.Asset;
 import org.mal_lang.compiler.lib.Lang.AttackStep;
 import org.mal_lang.compiler.lib.Lang.AttackStepType;
 import org.mal_lang.compiler.lib.Lang.StepExpr;
-import org.mal_lang.compiler.lib.Lang.TTCFunc;
+import org.mal_lang.compiler.lib.Lang.TTEFunc;
 import org.mal_lang.compiler.lib.MalLogger;
 
 public class DefenseGenerator extends JavaGenerator {
@@ -87,7 +87,7 @@ public class DefenseGenerator extends JavaGenerator {
     if (attackStep.hasTTC()) {
       ClassName fmath = ClassName.get("com.foreseeti.corelib.math", "FMath");
       // Analyzer guarantees this is a ttcfunc
-      TTCFunc func = (TTCFunc) attackStep.getTTC();
+      TTEFunc func = (TTEFunc) attackStep.getTTC();
       constructor.addStatement(
           "setEvidenceDistribution($T.getBernoulliDist($L))", fmath, func.dist.getMean());
     }
@@ -102,7 +102,7 @@ public class DefenseGenerator extends JavaGenerator {
     if (attackStep.hasTTC()) {
       ClassName fmath = ClassName.get("com.foreseeti.corelib.math", "FMath");
       // Analyzer guarantees this is a ttcfunc
-      TTCFunc func = (TTCFunc) attackStep.getTTC();
+      TTEFunc func = (TTEFunc) attackStep.getTTC();
       constructor.addStatement(
           "setEvidenceDistribution($T.getBernoulliDist($L))", fmath, func.dist.getMean());
     }

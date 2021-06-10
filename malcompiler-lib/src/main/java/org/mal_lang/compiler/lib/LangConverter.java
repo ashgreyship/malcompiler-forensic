@@ -275,26 +275,26 @@ public class LangConverter {
   private Lang.TTCExpr _convertTTC(AST.TTCExpr astTTC) {
     if (astTTC instanceof AST.TTCAddExpr) {
       var astAdd = (AST.TTCAddExpr) astTTC;
-      return new Lang.TTCAdd(_convertTTC(astAdd.lhs), _convertTTC(astAdd.rhs));
+      return new Lang.TTEAdd(_convertTTC(astAdd.lhs), _convertTTC(astAdd.rhs));
     } else if (astTTC instanceof AST.TTCSubExpr) {
       var astSub = (AST.TTCSubExpr) astTTC;
-      return new Lang.TTCSub(_convertTTC(astSub.lhs), _convertTTC(astSub.rhs));
+      return new Lang.TTESub(_convertTTC(astSub.lhs), _convertTTC(astSub.rhs));
     } else if (astTTC instanceof AST.TTCMulExpr) {
       var astMul = (AST.TTCMulExpr) astTTC;
-      return new Lang.TTCMul(_convertTTC(astMul.lhs), _convertTTC(astMul.rhs));
+      return new Lang.TTEMul(_convertTTC(astMul.lhs), _convertTTC(astMul.rhs));
     } else if (astTTC instanceof AST.TTCDivExpr) {
       var astDiv = (AST.TTCDivExpr) astTTC;
-      return new Lang.TTCDiv(_convertTTC(astDiv.lhs), _convertTTC(astDiv.rhs));
+      return new Lang.TTEDiv(_convertTTC(astDiv.lhs), _convertTTC(astDiv.rhs));
     } else if (astTTC instanceof AST.TTCPowExpr) {
       var astPow = (AST.TTCPowExpr) astTTC;
-      return new Lang.TTCPow(_convertTTC(astPow.lhs), _convertTTC(astPow.rhs));
+      return new Lang.TTEPow(_convertTTC(astPow.lhs), _convertTTC(astPow.rhs));
     } else if (astTTC instanceof AST.TTCNumExpr) {
       var astNum = (AST.TTCNumExpr) astTTC;
-      return new Lang.TTCNum(astNum.value);
+      return new Lang.TTENum(astNum.value);
     } else if (astTTC instanceof AST.TTCFuncExpr) {
       var astFunc = (AST.TTCFuncExpr) astTTC;
       var dist = Distributions.getDistribution(astFunc.name.id, astFunc.params);
-      return new Lang.TTCFunc(dist);
+      return new Lang.TTEFunc(dist);
     }
     throw new RuntimeException("_convertTTC: Invalid AST.TTCExpr subtype");
   }

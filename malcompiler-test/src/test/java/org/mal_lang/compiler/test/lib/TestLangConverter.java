@@ -656,9 +656,9 @@ public class TestLangConverter extends MalTest {
     // ExponentialDistribution(0.05) * GammaDistribution(1.2, 1.7)
     assertLangTTC(
         attackStep,
-        new Lang.TTCMul(
-            new Lang.TTCFunc(new Distributions.Exponential(0.05)),
-            new Lang.TTCFunc(new Distributions.Gamma(1.2, 1.7))));
+        new Lang.TTEMul(
+            new Lang.TTEFunc(new Distributions.Exponential(0.05)),
+            new Lang.TTEFunc(new Distributions.Gamma(1.2, 1.7))));
 
     requires = attackStep.getRequires();
     reaches = attackStep.getReaches();

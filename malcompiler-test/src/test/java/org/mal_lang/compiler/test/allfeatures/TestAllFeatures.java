@@ -1688,7 +1688,7 @@ public class TestAllFeatures extends MalTest {
             Map.ofEntries(Map.entry("user", "This is a1Attack2")));
     assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, new Lang.CIA(true, true, false));
-    assertLangTTC(attackStep, new Lang.TTCFunc(new Distributions.Zero()));
+    assertLangTTC(attackStep, new Lang.TTEFunc(new Distributions.Zero()));
     requires = attackStep.getRequires();
     reaches = attackStep.getReaches();
     parentSteps = attackStep.getParentSteps();
@@ -1772,7 +1772,7 @@ public class TestAllFeatures extends MalTest {
 
     assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, null);
-    assertLangTTC(attackStep, new Lang.TTCFunc(new Distributions.Bernoulli(0.5)));
+    assertLangTTC(attackStep, new Lang.TTEFunc(new Distributions.Bernoulli(0.5)));
     requires = attackStep.getRequires();
     reaches = attackStep.getReaches();
     parentSteps = attackStep.getParentSteps();
@@ -1786,7 +1786,7 @@ public class TestAllFeatures extends MalTest {
             asset, "a1Defense2", Lang.AttackStepType.DEFENSE, false, true, false, false, Map.of());
     assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, null);
-    assertLangTTC(attackStep, new Lang.TTCFunc(new Distributions.Disabled()));
+    assertLangTTC(attackStep, new Lang.TTEFunc(new Distributions.Disabled()));
     requires = attackStep.getRequires();
     reaches = attackStep.getReaches();
     parentSteps = attackStep.getParentSteps();
@@ -2157,7 +2157,7 @@ public class TestAllFeatures extends MalTest {
             asset, "a1Defense1", Lang.AttackStepType.DEFENSE, false, true, false, true, Map.of());
     assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, null);
-    assertLangTTC(attackStep, new Lang.TTCFunc(new Distributions.Enabled()));
+    assertLangTTC(attackStep, new Lang.TTEFunc(new Distributions.Enabled()));
     requires = attackStep.getRequires();
     reaches = attackStep.getReaches();
     parentSteps = attackStep.getParentSteps();
@@ -2526,7 +2526,7 @@ public class TestAllFeatures extends MalTest {
             asset, "destroy", Lang.AttackStepType.ALL, false, false, false, false, Map.of());
     assertLangTags(attackStep, List.of());
     assertLangCIA(attackStep, new Lang.CIA(true, true, true));
-    assertLangTTC(attackStep, new Lang.TTCFunc(new Distributions.Exponential(5)));
+    assertLangTTC(attackStep, new Lang.TTEFunc(new Distributions.Exponential(5)));
     var requires = attackStep.getRequires();
     var reaches = attackStep.getReaches();
     var parentSteps = attackStep.getParentSteps();

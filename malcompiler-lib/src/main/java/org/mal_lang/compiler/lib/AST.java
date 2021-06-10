@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Optional;
 
 public class AST {
+  // <mal>::= (<category> | <associations> | <include> | <define>)* EOF
   private List<Category> categories = new ArrayList<>();
   private List<Association> associations = new ArrayList<>();
   private List<Define> defines = new ArrayList<>();
@@ -316,8 +317,7 @@ public class AST {
     public final TraceType type;
     public final ID name;
     public final List<ID> tags;
-    public final Optional<List<CIA>> cia;
-    public final Optional<TTCExpr> ttc;
+    public final Optional<TTEExpr> tte;
     public final List<Meta> meta;
     public final Optional<Requires> requires;
     public final Optional<Reaches> reaches;
@@ -327,8 +327,7 @@ public class AST {
         TraceType type,
         ID name,
         List<ID> tags,
-        Optional<List<CIA>> cia,
-        Optional<TTCExpr> ttc,
+        Optional<TTEExpr> tte,
         List<Meta> meta,
         Optional<Requires> requires,
         Optional<Reaches> reaches) {
@@ -336,8 +335,7 @@ public class AST {
       this.type = type;
       this.name = name;
       this.tags = tags;
-      this.cia = cia;
-      this.ttc = ttc;
+      this.tte = tte;
       this.meta = meta;
       this.requires = requires;
       this.reaches = reaches;
@@ -347,7 +345,7 @@ public class AST {
       var indent = " ".repeat(spaces);
       var sb = new StringBuilder();
       sb.append(
-          String.format("%Trace(%s, %s, %s,%n", indent, posString(), type.name(), name.toString()));
+          String.format("%sTrace(%s, %s, %s,%n", indent, posString(), type.name(), name.toString()));
       sb.append(String.format("%s  tags = {", indent));
       for (int i = 0; i < tags.size(); i++) {
         if (i > 0) {
@@ -356,15 +354,10 @@ public class AST {
         sb.append(tags.get(i).toString());
       }
       sb.append(String.format("},%n"));
-      if (cia.isEmpty()) {
-        sb.append(String.format("%s  cia = {},%n", indent));
+      if (tte.isEmpty()) {
+        sb.append(String.format("%s  tte = [],%n", indent));
       } else {
-        sb.append(String.format("%s  cia = {%s},%n", indent, CIA.listToString(cia.get())));
-      }
-      if (ttc.isEmpty()) {
-        sb.append(String.format("%s  ttc = [],%n", indent));
-      } else {
-        sb.append(String.format("%s  ttc = [%s],%n", indent, ttc.get().toString()));
+        sb.append(String.format("%s  tte = [%s],%n", indent, tte.get().toString()));
       }
       sb.append(String.format("%s,%n", Meta.listToString(meta, spaces + 2)));
       if (requires.isEmpty()) {
@@ -615,6 +608,115 @@ public class AST {
       return String.format("TTCNumExpr(%s, %f)", posString(), value);
     }
   }
+
+  public abstract static class TTEExpr extends Position {
+    public TTEExpr(Position pos) {
+      super(pos);
+    }
+  }
+
+  public abstract static class TTEBinaryExpr extends TTEExpr {
+    public final TTEExpr lhs;
+    public final TTEExpr rhs;
+
+    public TTEBinaryExpr(Position pos, TTEExpr lhs, TTEExpr rhs) {
+      super(pos);
+      this.lhs = lhs;
+      this.rhs = rhs;
+    }
+  }
+
+  public static class TTEAddExpr extends TTEBinaryExpr {
+    public TTEAddExpr(Position pos, TTEExpr lhs, TTEExpr rhs) {
+      super(pos, lhs, rhs);
+    }
+
+    @Override
+    public String toString() {
+      return String.format("TTCAddExpr(%s, %s, %s)", posString(), lhs.toString(), rhs.toString());
+    }
+  }
+
+  public static class TTESubExpr extends TTEBinaryExpr {
+    public TTESubExpr(Position pos, TTEExpr lhs, TTEExpr rhs) {
+      super(pos, lhs, rhs);
+    }
+
+    @Override
+    public String toString() {
+      return String.format("TTCSubExpr(%s, %s, %s)", posString(), lhs.toString(), rhs.toString());
+    }
+  }
+
+  public static class TTEMulExpr extends TTEBinaryExpr {
+    public TTEMulExpr(Position pos, TTEExpr lhs, TTEExpr rhs) {
+      super(pos, lhs, rhs);
+    }
+
+    @Override
+    public String toString() {
+      return String.format("TTCMulExpr(%s, %s, %s)", posString(), lhs.toString(), rhs.toString());
+    }
+  }
+
+  public static class TTEDivExpr extends TTEBinaryExpr {
+    public TTEDivExpr(Position pos, TTEExpr lhs, TTEExpr rhs) {
+      super(pos, lhs, rhs);
+    }
+
+    @Override
+    public String toString() {
+      return String.format("TTCDivExpr(%s, %s, %s)", posString(), lhs.toString(), rhs.toString());
+    }
+  }
+
+  public static class TTEPowExpr extends TTEBinaryExpr {
+    public TTEPowExpr(Position pos, TTEExpr lhs, TTEExpr rhs) {
+      super(pos, lhs, rhs);
+    }
+
+    @Override
+    public String toString() {
+      return String.format("TTCPowExpr(%s, %s, %s)", posString(), lhs.toString(), rhs.toString());
+    }
+  }
+
+  public static class TTEFuncExpr extends TTEExpr {
+    public final ID name;
+    public final List<Double> params;
+
+    public TTEFuncExpr(Position pos, ID name, List<Double> params) {
+      super(pos);
+      this.name = name;
+      this.params = params;
+    }
+
+    @Override
+    public String toString() {
+      var sb = new StringBuilder();
+      sb.append(String.format("TTCFuncExpr(%s, %s", posString(), name.toString()));
+      for (var p : params) {
+        sb.append(String.format(", %f", p));
+      }
+      sb.append(')');
+      return sb.toString();
+    }
+  }
+
+  public static class TTENumExpr extends TTEExpr {
+    public final double value;
+
+    public TTENumExpr(Position pos, double value) {
+      super(pos);
+      this.value = value;
+    }
+
+    @Override
+    public String toString() {
+      return String.format("TTCNumExpr(%s, %f)", posString(), value);
+    }
+  }
+
 
   public static class Requires extends Position {
     public final List<Expr> requires;
