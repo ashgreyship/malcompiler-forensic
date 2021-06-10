@@ -120,6 +120,7 @@ public class Lang {
         private Asset superAsset;
         private Map<String, Field> fields;
         private Map<String, AttackStep> attackSteps;
+        private Map<String,Trace> traces;
         private Map<String, StepExpr> variables;
         private Map<String, StepExpr> reverseVariables;
 
@@ -224,6 +225,14 @@ public class Lang {
 
         public AttackStep removeAttackStep(AttackStep attackStep) {
             return this.attackSteps.remove(attackStep.getName());
+        }
+
+        public void addTrace(Trace trace) {
+            this.traces.put(trace.getName(), trace);
+        }
+
+        public Trace removeTrace(Trace trace) {
+            return this.traces.remove(trace.getName());
         }
     }
 
@@ -664,37 +673,37 @@ public class Lang {
         }
     }
 
-    public static class TTEAdd extends TTCBinOp {
-        public TTEAdd(TTCExpr lhs, TTCExpr rhs) {
+    public static class TTEAdd extends TTEBinOp {
+        public TTEAdd(TTEExpr lhs, TTEExpr rhs) {
             super(lhs, rhs);
         }
     }
 
-    public static class TTESub extends TTCBinOp {
-        public TTESub(TTCExpr lhs, TTCExpr rhs) {
+    public static class TTESub extends TTEBinOp {
+        public TTESub(TTEExpr lhs, TTEExpr rhs) {
             super(lhs, rhs);
         }
     }
 
-    public static class TTEMul extends TTCBinOp {
-        public TTEMul(TTCExpr lhs, TTCExpr rhs) {
+    public static class TTEMul extends TTEBinOp {
+        public TTEMul(TTEExpr lhs, TTEExpr rhs) {
             super(lhs, rhs);
         }
     }
 
-    public static class TTEDiv extends TTCBinOp {
-        public TTEDiv(TTCExpr lhs, TTCExpr rhs) {
+    public static class TTEDiv extends TTEBinOp {
+        public TTEDiv(TTEExpr lhs, TTEExpr rhs) {
             super(lhs, rhs);
         }
     }
 
-    public static class TTEPow extends TTCBinOp {
-        public TTEPow(TTCExpr lhs, TTCExpr rhs) {
+    public static class TTEPow extends TTEBinOp {
+        public TTEPow(TTEExpr lhs, TTEExpr rhs) {
             super(lhs, rhs);
         }
     }
 
-    public static class TTENum extends TTCExpr {
+    public static class TTENum extends TTEExpr {
         public final double value;
 
         public TTENum(double value) {
@@ -702,7 +711,7 @@ public class Lang {
         }
     }
 
-    public static class TTEFunc extends TTCExpr {
+    public static class TTEFunc extends TTEExpr {
         public final Distributions.Distribution dist;
 
         public TTEFunc(Distribution dist) {

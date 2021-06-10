@@ -131,6 +131,7 @@ public class LangConverter {
     // Add attack steps to assets
     for (var categoryName : this.astCategories.keySet()) {
       for (var astCategory : this.astCategories.get(categoryName)) {
+
         for (var astAsset : astCategory.assets) {
           var assetName = astAsset.name.id;
           var langAsset = langAssets.get(assetName);
@@ -150,6 +151,27 @@ public class LangConverter {
             }
             astAttackStep.ttc.ifPresent(ttcExpr -> langAttackStep.setTTC(_convertTTC(ttcExpr)));
             langAsset.addAttackStep(langAttackStep);
+          }
+        }
+
+        for (var astEvidence : astCategory.evidences) {
+          var assetName = astEvidence.name.id;
+          var langAsset = langAssets.get(assetName);
+          for (var astTrace : astEvidence.traces) {
+            var langTraceType = _convertTraceType(astTrace.type);
+            var inheritsReaches = _convertInheritsReaches(astTrace);
+            var langTrace =
+                    new Lang.Trace(
+                            astTrace.name.id,
+                            langTraceType,
+                            langAsset,
+                            inheritsReaches);
+            _convertMetaList(langTrace.getMeta(), astEvidence.meta);
+            for (var tag : astTrace.tags) {
+              langTrace.addTag(tag.id);
+            }
+            astTrace.tte.ifPresent(tteExpr -> langTrace.setTTE(_convertTTE(tteExpr)));
+            langAsset.addTrace(langTrace);
           }
         }
       }
@@ -244,8 +266,22 @@ public class LangConverter {
     throw new RuntimeException("Invalid AttackStepType");
   }
 
+  private Lang.TraceType _convertTraceType(AST.TraceType trace_Type) {
+    switch (trace_Type) {
+      case ALL:
+        return Lang.TraceType.ALL;
+      case ANY:
+        return Lang.TraceType.ANY;
+    }
+    throw new RuntimeException("Invalid Trace Type");
+  }
+
   private AST.ReachTypes _convertInheritsReaches(AST.AttackStep astAttackStep) {
     return astAttackStep.reaches.map(reaches -> reaches.types).orElse(null);
+  }
+
+  private AST.ReachTypes _convertInheritsReaches(AST.Trace astTrace) {
+    return astTrace.reaches.map(reaches -> reaches.types).orElse(null);
   }
 
   private Lang.CIA _convertCIA(Optional<List<AST.CIA>> astCIA) {
@@ -275,28 +311,55 @@ public class LangConverter {
   private Lang.TTCExpr _convertTTC(AST.TTCExpr astTTC) {
     if (astTTC instanceof AST.TTCAddExpr) {
       var astAdd = (AST.TTCAddExpr) astTTC;
-      return new Lang.TTEAdd(_convertTTC(astAdd.lhs), _convertTTC(astAdd.rhs));
+      return new Lang.TTCAdd(_convertTTC(astAdd.lhs), _convertTTC(astAdd.rhs));
     } else if (astTTC instanceof AST.TTCSubExpr) {
       var astSub = (AST.TTCSubExpr) astTTC;
-      return new Lang.TTESub(_convertTTC(astSub.lhs), _convertTTC(astSub.rhs));
+      return new Lang.TTCSub(_convertTTC(astSub.lhs), _convertTTC(astSub.rhs));
     } else if (astTTC instanceof AST.TTCMulExpr) {
       var astMul = (AST.TTCMulExpr) astTTC;
-      return new Lang.TTEMul(_convertTTC(astMul.lhs), _convertTTC(astMul.rhs));
+      return new Lang.TTCMul(_convertTTC(astMul.lhs), _convertTTC(astMul.rhs));
     } else if (astTTC instanceof AST.TTCDivExpr) {
       var astDiv = (AST.TTCDivExpr) astTTC;
-      return new Lang.TTEDiv(_convertTTC(astDiv.lhs), _convertTTC(astDiv.rhs));
+      return new Lang.TTCDiv(_convertTTC(astDiv.lhs), _convertTTC(astDiv.rhs));
     } else if (astTTC instanceof AST.TTCPowExpr) {
       var astPow = (AST.TTCPowExpr) astTTC;
-      return new Lang.TTEPow(_convertTTC(astPow.lhs), _convertTTC(astPow.rhs));
+      return new Lang.TTCPow(_convertTTC(astPow.lhs), _convertTTC(astPow.rhs));
     } else if (astTTC instanceof AST.TTCNumExpr) {
       var astNum = (AST.TTCNumExpr) astTTC;
-      return new Lang.TTENum(astNum.value);
+      return new Lang.TTCNum(astNum.value);
     } else if (astTTC instanceof AST.TTCFuncExpr) {
       var astFunc = (AST.TTCFuncExpr) astTTC;
       var dist = Distributions.getDistribution(astFunc.name.id, astFunc.params);
-      return new Lang.TTEFunc(dist);
+      return new Lang.TTCFunc(dist);
     }
     throw new RuntimeException("_convertTTC: Invalid AST.TTCExpr subtype");
+  }
+
+  private Lang.TTEExpr _convertTTE(AST.TTEExpr astTTE) {
+    if (astTTE instanceof AST.TTEAddExpr) {
+      var astAdd = (AST.TTEAddExpr) astTTE;
+      return new Lang.TTEAdd(_convertTTE(astAdd.lhs), _convertTTE(astAdd.rhs));
+    } else if (astTTE instanceof AST.TTESubExpr) {
+      var astSub = (AST.TTESubExpr) astTTE;
+      return new Lang.TTESub(_convertTTE(astSub.lhs), _convertTTE(astSub.rhs));
+    } else if (astTTE instanceof AST.TTEMulExpr) {
+      var astMul = (AST.TTEMulExpr) astTTE;
+      return new Lang.TTEMul(_convertTTE(astMul.lhs), _convertTTE(astMul.rhs));
+    } else if (astTTE instanceof AST.TTEDivExpr) {
+      var astDiv = (AST.TTEDivExpr) astTTE;
+      return new Lang.TTEDiv(_convertTTE(astDiv.lhs), _convertTTE(astDiv.rhs));
+    } else if (astTTE instanceof AST.TTEPowExpr) {
+      var astPow = (AST.TTEPowExpr) astTTE;
+      return new Lang.TTEPow(_convertTTE(astPow.lhs), _convertTTE(astPow.rhs));
+    } else if (astTTE instanceof AST.TTENumExpr) {
+      var astNum = (AST.TTENumExpr) astTTE;
+      return new Lang.TTENum(astNum.value);
+    } else if (astTTE instanceof AST.TTEFuncExpr) {
+      var astFunc = (AST.TTEFuncExpr) astTTE;
+      var dist = Distributions.getDistribution(astFunc.name.id, astFunc.params);
+      return new Lang.TTEFunc(dist);
+    }
+    throw new RuntimeException("_convertTTE: Invalid AST.TTEExpr subtype");
   }
 
   private void _convertRequires(
