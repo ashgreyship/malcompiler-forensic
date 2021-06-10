@@ -400,7 +400,7 @@ public class Parser {
     }
   }
 
-  // <trace> ::= <trace_type> ID <tag>* <cia>? <ttc>? <meta1>* <existence>? <reaches>?
+  // <trace> ::= <trace_type> ID <tag>* <tte>? <meta1>* <existence>? <reaches>?
   private AST.Trace _parseTrace() throws CompilerException {
     var firstToken = tok;
 
