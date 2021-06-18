@@ -353,6 +353,14 @@ public class Analyzer {
     }
   }
 
+  private void checkTraces() {
+    for (AST.Asset asset : assets.values()) {
+      Scope<AST.Trace> scope = new Scope<>();
+      traces.put(asset.name.id, scope);
+      readTraces(scope, asset);
+    }
+  }
+
   private void checkCIA() {
     for (var asset : assets.values()) {
       for (var attackStep : asset.attackSteps) {
@@ -586,6 +594,50 @@ public class Analyzer {
               String.format(
                   "Attack step '%s' previously defined at %s",
                   attackStep.name.id, prevDef.name.posString()));
+        }
+      }
+    }
+  }
+
+  private void readTraces(Scope<AST.Trace> scope, AST.Asset asset) {
+    List<AST.Asset> parents = getParents(asset);
+    for (AST.Asset parent : parents) {
+      if (parent.parent.isPresent()) {
+        scope = new Scope<>(scope);
+        traces.put(asset.name.id, scope);
+      }
+      for (AST.Trace trace : parent.traces) {
+        AST.Trace prevDef = scope.look(trace.name.id);
+        if (prevDef == null) {
+          prevDef = scope.lookup(trace.name.id);
+          if (prevDef == null) {
+            if (trace.reaches.isEmpty()
+                    || trace.reaches.get().types != AST.ReachTypes.INHERIT) {
+              scope.add(trace.name.id, trace);
+            } else {
+              error(
+                      trace.reaches.get(),
+                      String.format(
+                              "Cannot inherit attack step '%s' without previous definition",
+                              trace.name.id));
+            }
+          } else {
+            if (trace.type.equals(prevDef.type)) {
+              scope.add(trace.name.id, trace);
+            } else {
+              error(
+                      trace.name,
+                      String.format(
+                              "Cannot override trace '%s' previously defined at %s with different type '%s' =/= '%s'",
+                              trace.name.id, prevDef.name.posString(), trace.type, prevDef.type));
+            }
+          }
+        } else {
+          error(
+                  trace.name,
+                  String.format(
+                          "Trace '%s' previously defined at %s",
+                          trace.name.id, prevDef.name.posString()));
         }
       }
     }
