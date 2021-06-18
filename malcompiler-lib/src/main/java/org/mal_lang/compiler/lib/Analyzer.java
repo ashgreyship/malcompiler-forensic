@@ -82,6 +82,7 @@ public class Analyzer {
     checkSteps();
     checkCIA();
     checkTTC();
+    checkTTE();
     checkFields();
     checkVariables();
     checkReaches(); // might throw
@@ -413,6 +414,20 @@ public class Analyzer {
           } else if (attackStep.type == AST.AttackStepType.ALL
               || attackStep.type == AST.AttackStepType.ANY) {
             checkTTCExpr(attackStep.ttc.get());
+          }
+        }
+      }
+    }
+  }
+
+  private void checkTTE() {
+    for (AST.Evidence evidence : evidences.values()) {
+      for (AST.Trace trace : evidence.traces) {
+        if (trace.tte.isPresent()) {
+          AST.TTEExpr tte = trace.tte.get();
+         if (trace.type == AST.TraceType.ALL
+                  || trace.type == AST.TraceType.ANY) {
+            checkTTEExpr(trace.tte.get());
           }
         }
       }
