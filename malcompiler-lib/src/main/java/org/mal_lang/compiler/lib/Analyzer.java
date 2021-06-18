@@ -424,7 +424,6 @@ public class Analyzer {
     for (AST.Evidence evidence : evidences.values()) {
       for (AST.Trace trace : evidence.traces) {
         if (trace.tte.isPresent()) {
-          AST.TTEExpr tte = trace.tte.get();
          if (trace.type == AST.TraceType.ALL
                   || trace.type == AST.TraceType.ANY) {
             checkTTEExpr(trace.tte.get());
