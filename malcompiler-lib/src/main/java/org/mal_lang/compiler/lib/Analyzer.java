@@ -80,6 +80,7 @@ public class Analyzer {
     checkParents(); // might throw
 
     checkSteps();
+    checkTraces();
     checkCIA();
     checkTTC();
     checkTTE();
