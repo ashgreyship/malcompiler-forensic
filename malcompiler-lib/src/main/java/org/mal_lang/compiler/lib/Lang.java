@@ -236,6 +236,120 @@ public class Lang {
         }
     }
 
+    public static class Evidence {
+        private String name;
+        private boolean isAbstract;
+        private Category category;
+        private Map<String, String> meta;
+        private Evidence superEvidence;
+        private Map<String, Field> fields;
+        private Map<String,Trace> traces;
+        private Map<String, StepExpr> variables;
+        private Map<String, StepExpr> reverseVariables;
+
+        public Evidence(String name, boolean isAbstract, Category category) {
+            this.name = name;
+            this.isAbstract = isAbstract;
+            this.category = category;
+            this.meta = new LinkedHashMap<>();
+            this.fields = new LinkedHashMap<>();
+            this.variables = new LinkedHashMap<>();
+            this.reverseVariables = new LinkedHashMap<>();
+        }
+
+        public void addVariable(String name, StepExpr expr) {
+            this.variables.put(name, expr);
+        }
+
+        public Map<String, StepExpr> getVariables() {
+            return this.variables;
+        }
+
+        public void addReverseVariable(String name, StepExpr expr) {
+            this.reverseVariables.put(name, expr);
+        }
+
+        public Map<String, StepExpr> getReverseVariables() {
+            return this.reverseVariables;
+        }
+
+        public String getName() {
+            return this.name;
+        }
+
+        public boolean isAbstract() {
+            return this.isAbstract;
+        }
+
+        public Category getCategory() {
+            return this.category;
+        }
+
+        public Map<String, String> getMeta() {
+            return this.meta;
+        }
+
+        public boolean hasSuperEvidence() {
+            return this.superEvidence != null;
+        }
+
+        public Evidence getSuperAsset() {
+            return this.superEvidence;
+        }
+
+        public void setSuperAsset(Evidence superEvidence) {
+            this.superEvidence = superEvidence;
+        }
+
+        public Map<String, Field> getFields() {
+            var copy = new LinkedHashMap<String, Field>();
+            for (var entry : this.fields.entrySet()) {
+                copy.put(entry.getKey(), entry.getValue());
+            }
+            return copy;
+        }
+
+        public Field getField(String name) {
+            if (this.fields.containsKey(name)) {
+                return this.fields.get(name);
+            }
+            if (this.superEvidence != null) {
+                return this.superEvidence.getField(name);
+            }
+            return null;
+        }
+
+        public void addField(Field field) {
+            this.fields.put(field.getName(), field);
+        }
+
+        public Map<String, Trace> getTrace() {
+            var copy = new LinkedHashMap<String, Trace>();
+            for (var entry : this.traces.entrySet()) {
+                copy.put(entry.getKey(), entry.getValue());
+            }
+            return copy;
+        }
+
+        public Trace getTrace(String name) {
+            if (this.traces.containsKey(name)) {
+                return this.traces.get(name);
+            }
+            if (this.superEvidence != null) {
+                return this.superEvidence.getTrace(name);
+            }
+            return null;
+        }
+
+        public void addTrace(Trace trace) {
+            this.traces.put(trace.getName(), trace);
+        }
+
+        public Trace removeTrace(Trace trace) {
+            return this.traces.remove(trace.getName());
+        }
+    }
+
     public static class Link {
         private String name;
         private Map<String, String> meta;

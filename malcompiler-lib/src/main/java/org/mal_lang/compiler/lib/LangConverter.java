@@ -416,6 +416,22 @@ public class LangConverter {
     return _convertExprToAsset(expr, asset, assets, null, assetVars);
   }
 
+  private Lang.StepExpr _convertExprToEvidence( AST.Expr expr,
+                                                Lang.Evidence evidence,
+                                                Map<String, Lang.Evidence> evidences,
+                                                Map<String, Map<String, AST.Variable>> evidenceVars){
+    return _convertExprToEvidence(expr, evidence, evidences, null, evidenceVars);
+  }
+
+  private Lang.StepExpr _convertExprToEvidence(
+          AST.Expr expr,
+          Lang.Evidence evidence,
+          Map<String, Lang.Evidence> evidences,
+          Lang.Evidence subTarget,
+          Map<String, Map<String, AST.Variable>> assetVars){
+    return null;
+  }
+
   private Lang.StepExpr _convertExprToAsset(
       AST.Expr expr,
       Lang.Asset asset,
@@ -508,6 +524,24 @@ public class LangConverter {
     } else if (expr instanceof AST.IDExpr) {
       var idExpr = (AST.IDExpr) expr;
       var attStep = asset.getAttackStep(idExpr.id.id);
+      return new Lang.StepAttackStep(asset, attStep.getAsset(), attStep);
+    }
+    throw new RuntimeException("_convertExprToAttackStep: Invalid AST.Expr subtype");
+  }
+
+  private Lang.StepExpr _convertExprToTrace(
+          AST.Expr expr,
+          Lang.Evidence evidence,
+          Map<String, Lang.Evidence> evidences,
+          Map<String, Map<String, AST.Variable>> assetVars) {
+    if (expr instanceof AST.StepExpr) {
+      var stepExpr = (AST.StepExpr) expr;
+      var lhs = _convertExprToEvidence(stepExpr.lhs, evidence, evidences, assetVars);
+      var rhs = _convertExprToTrace(stepExpr.rhs, lhs.subTarget, evidences, assetVars);
+      return new Lang.StepCollect(evidence, evidence, null, null, lhs, rhs);
+    } else if (expr instanceof AST.IDExpr) {
+      var idExpr = (AST.IDExpr) expr;
+      var attStep = asset.getTrace(idExpr.id.id);
       return new Lang.StepAttackStep(asset, attStep.getAsset(), attStep);
     }
     throw new RuntimeException("_convertExprToAttackStep: Invalid AST.Expr subtype");

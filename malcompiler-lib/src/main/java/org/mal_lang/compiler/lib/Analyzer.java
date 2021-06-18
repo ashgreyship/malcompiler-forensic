@@ -30,9 +30,11 @@ import java.util.Set;
 public class Analyzer {
   private MalLogger LOGGER;
   private Map<String, AST.Asset> assets = new LinkedHashMap<>();
+  private Map<String, AST.Evidence> evidences = new LinkedHashMap<>();
   private Map<String, Scope<AST.Variable>> assetVariables = new LinkedHashMap<>();
   private Map<String, Scope<AST.Association>> fields = new LinkedHashMap<>();
   private Map<String, Scope<AST.AttackStep>> steps = new LinkedHashMap<>();
+  private Map<String, Scope<AST.Trace>> traces = new LinkedHashMap<>();
   private Set<AST.Variable> currentVariables = new LinkedHashSet<>();
   private Map<AST.Variable, Integer> variableReferenceCount = new HashMap<>();
   private Map<AST.Association, Map<String, Integer>> fieldReferenceCount = new HashMap<>();
@@ -70,6 +72,7 @@ public class Analyzer {
     checkDefines();
     checkCategories();
     checkAssets();
+    checkEvidences();
     checkMetas();
     checkExtends(); // might throw
 
@@ -258,6 +261,22 @@ public class Analyzer {
                   "Asset '%s' previously defined at %s", asset.name.id, prevDef.name.posString()));
         } else {
           assets.put(asset.name.id, asset);
+        }
+      }
+    }
+  }
+
+  private void checkEvidences(){
+    for (AST.Category category : ast.getCategories()) {
+      for (AST.Evidence evidence : category.evidences) {
+        if (evidences.containsKey(evidence.name.id)) {
+          AST.Evidence prevDef = evidences.get(evidence.name.id);
+          error(
+                  evidence.name,
+                  String.format(
+                          "Evidence '%s' previously defined at %s", evidence.name.id, prevDef.name.posString()));
+        } else {
+          evidences.put(evidence.name.id, evidence);
         }
       }
     }
@@ -672,6 +691,14 @@ public class Analyzer {
           }
         }
       }
+
+      for (AST.Trace trace : asset.traces){
+        if (trace.reaches.isPresent()) {
+          for (AST.Expr expr : trace.reaches.get().reaches) {
+            checkToTrace(asset, expr);
+          }
+        }
+      }
     }
     if (failed) {
       throw exception();
@@ -705,6 +732,35 @@ public class Analyzer {
       return null;
     }
   }
+
+  private AST.Trace checkToTrace(AST.Asset asset, AST.Expr expr) {
+    if (expr instanceof AST.IDExpr) {
+      AST.IDExpr trace = (AST.IDExpr) expr;
+      AST.Trace attackTrace = traces.get(asset.name.id).lookup(trace.id.id);
+      if (attackTrace != null) {
+        return attackTrace;
+      } else {
+        error(
+                trace.id,
+                String.format(
+                        "Trace '%s' not defined for asset '%s'", trace.id.id, asset.name.id));
+        return null;
+      }
+    } else if (expr instanceof AST.StepExpr) {
+      AST.StepExpr step = (AST.StepExpr) expr;
+      AST.Asset target = checkToAsset(asset, step.lhs);
+      if (target != null) {
+        return checkToTrace(target, step.rhs);
+      } else {
+        return null;
+      }
+    } else {
+      error(expr, "Last step is not trace");
+      return null;
+    }
+  }
+
+
 
   private AST.Asset checkToAsset(AST.Asset asset, AST.Expr expr) {
     if (expr instanceof AST.StepExpr) {
