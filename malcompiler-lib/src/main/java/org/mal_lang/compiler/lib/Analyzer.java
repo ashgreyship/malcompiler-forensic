@@ -423,6 +423,47 @@ public class Analyzer {
     checkTTCExpr(expr, false);
   }
 
+  private void checkTTEExpr(AST.TTEExpr expr) {
+    checkTTEExpr(expr, false);
+  }
+
+  private void checkTTEExpr(AST.TTEExpr expr, boolean isSubDivExp) {
+    if (expr instanceof AST.TTEBinaryExpr) {
+      isSubDivExp =
+              expr instanceof AST.TTESubExpr
+                      || expr instanceof AST.TTEDivExpr
+                      || expr instanceof AST.TTEPowExpr;
+      checkTTEExpr(((AST.TTEBinaryExpr) expr).lhs, isSubDivExp);
+      checkTTEExpr(((AST.TTEBinaryExpr) expr).rhs, isSubDivExp);
+    } else if (expr instanceof AST.TTEFuncExpr) {
+      AST.TTEFuncExpr func = (AST.TTEFuncExpr) expr;
+      if (func.name.id.equals("Enabled") || func.name.id.equals("Disabled")) {
+        error(
+                expr,
+                "Distributions 'Enabled' or 'Disabled' may not be used as TTC values in '&' and '|' attack steps");
+      } else {
+        if (isSubDivExp && Arrays.asList("Bernoulli", "EasyAndUncertain").contains(func.name.id)) {
+          error(
+                  expr,
+                  String.format(
+                          "TTC distribution '%s' is not available in subtraction, division or exponential expressions.",
+                          func.name.id));
+        }
+        try {
+          Distributions.validate(func.name.id, func.params);
+        } catch (CompilerException e) {
+          error(func, e.getMessage());
+        }
+      }
+    } else if (expr instanceof AST.TTENumExpr) {
+      // always ok
+    } else {
+      error(expr, String.format("Unexpected expression '%s'", expr.toString()));
+      System.exit(1);
+    }
+  }
+
+
   private void checkTTCExpr(AST.TTCExpr expr, boolean isSubDivExp) {
     if (expr instanceof AST.TTCBinaryExpr) {
       isSubDivExp =
