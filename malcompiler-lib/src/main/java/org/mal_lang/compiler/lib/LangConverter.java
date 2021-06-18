@@ -534,17 +534,18 @@ public class LangConverter {
           Lang.Evidence evidence,
           Map<String, Lang.Evidence> evidences,
           Map<String, Map<String, AST.Variable>> assetVars) {
-    if (expr instanceof AST.StepExpr) {
-      var stepExpr = (AST.StepExpr) expr;
-      var lhs = _convertExprToEvidence(stepExpr.lhs, evidence, evidences, assetVars);
-      var rhs = _convertExprToTrace(stepExpr.rhs, lhs.subTarget, evidences, assetVars);
-      return new Lang.StepCollect(evidence, evidence, null, null, lhs, rhs);
-    } else if (expr instanceof AST.IDExpr) {
-      var idExpr = (AST.IDExpr) expr;
-      var attStep = asset.getTrace(idExpr.id.id);
-      return new Lang.StepAttackStep(asset, attStep.getAsset(), attStep);
-    }
-    throw new RuntimeException("_convertExprToAttackStep: Invalid AST.Expr subtype");
+//    if (expr instanceof AST.StepExpr) {
+//      var stepExpr = (AST.StepExpr) expr;
+//      var lhs = _convertExprToEvidence(stepExpr.lhs, evidence, evidences, assetVars);
+//      var rhs = _convertExprToTrace(stepExpr.rhs, lhs.subTarget, evidences, assetVars);
+//      return new Lang.StepCollect(evidence, evidence, null, null, lhs, rhs);
+//    } else if (expr instanceof AST.IDExpr) {
+//      var idExpr = (AST.IDExpr) expr;
+//      var attStep = asset.getTrace(idExpr.id.id);
+//      return new Lang.StepAttackStep(asset, attStep.getAsset(), attStep);
+//    }
+//    throw new RuntimeException("_convertExprToAttackStep: Invalid AST.Expr subtype");
+    return null;
   }
 
   /**
